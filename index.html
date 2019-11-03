@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="./node_modules/wangeditor/release/wangEditor.js"></script>
+    <script src="./node_modules/jquery/dist/jquery.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <style>
+        .content {
+            width: 1000px;
+            margin: auto;
+        }
+
+        .content>div {
+            margin: 30px;
+        }
+
+        .content>div>label {
+            width: 100px;
+            display: inline-block;
+        }
+
+        .content>div>input {
+            width: 300px;
+            height: 30px;
+        }
+
+        #emailContent {
+            display: inline-block;
+        }
+
+        .wangEditor-wrap {
+            display: flex;
+            align-items: flex-start;
+        }
+    </style>
+
+    <div class="content">
+        <div>
+            <label for="seeStatus">监控状态：</label>
+
+            <span id="seeStatus">未监控</span>
+        </div>
+        <div>
+            <label for="url">域名：</label>
+            <input id="url" type="text" placeholder="请输入域名">
+        </div>
+
+        <div>
+            <label for="time">间隔时间：</label>
+            <input id="time" type="text" placeholder="请输入间隔时间">
+        </div>
+        <div>
+            <label for="sendEmail">发送者邮箱：</label>
+            <input id="sendEmail" type="text" placeholder="请输入发送者邮箱"> <span
+                style="background:lightskyblue;margin-left: 20px;">例子：'紫色很韵味<1565221029@qq.com>'</span>
+        </div>
+        <div>
+            <label for="getEmail">接受者邮箱：</label>
+            <input id="getEmail" type="text" placeholder="请输入接收者邮箱">
+        </div>
+        <div>
+            <label for="emailTitle">邮件标题：</label>
+            <input id="emailTitle" type="text" placeholder="请输入邮件标题">
+        </div>
+        <div class="wangEditor-wrap">
+            <label for="emailContent">邮件内容：</label>
+            <div id="emailContent"></div>
+        </div>
+
+        <button onclick="submit()"> 提交</button>
+        <button onclick="getLog()" style="margin-left: 50px;">
+            获取日志</button><button style="margin-left: 50px;"> <a href="http://127.0.0.1:8081/download">下载日志</a></button>
+        <button onclick="closeA()" style="margin-left: 50px;">关闭服务</button>
+
+        <script>
+            var info = localStorage.getItem("info");
+            var E = window.wangEditor
+            var editor2 = new E('#emailContent')
+            editor2.create()
+            if (info) {
+                var infoData = JSON.parse(info)
+                $('#url').val(infoData.urlValue),
+                    $('#time').val(infoData.timeValue),
+                    $('#sendEmail').val(infoData.sendEmailValue),
+                    $('#getEmail').val(infoData.getEmailValue),
+                    $('#emailTitle').val(infoData.emailTitleValue),
+                    editor2.txt.html(infoData.emailContentValue)
+            }
+
+
+
+            function submit() {
+                $.ajax({
+                    type: "GET",
+                    url: "http://127.0.0.1:8081",
+                    data: {
+                        urlValue: $('#url').val(),
+                        timeValue: $('#time').val(),
+                        sendEmailValue: $('#sendEmail').val(),
+                        getEmailValue: $('#getEmail').val(),
+                        emailTitleValue: $('#emailTitle').val(),
+                        emailContentValue: editor2.txt.html()
+
+                    },
+
+                    success: function (data) {
+                        console.log(data);
+                        alert(data.status)
+                        $('#seeStatus').html('正在监视........');
+                    }
+                });
+
+                let data = {
+                    urlValue: $('#url').val(),
+                    timeValue: $('#time').val(),
+                    sendEmailValue: $('#sendEmail').val(),
+                    getEmailValue: $('#getEmail').val(),
+                    emailTitleValue: $('#emailTitle').val(),
+                    emailContentValue: editor2.txt.html()
+
+                }
+                localStorage.setItem("info", JSON.stringify(data));
+            }
+
+            function getLog() {
+                window.open('http://127.0.0.1:8081/getLog', '_blank');
+            }
+
+            function downloadLog() {
+                window.open('http://127.0.0.1:8081/downloadLog', '_blank');
+            }
+
+            function closeA() {
+                $.ajax({
+                    type: "GET",
+                    url: "http://127.0.0.1:8081/close",
+
+                    success: function (data) {
+                        console.log(data);
+                        alert(data.status)
+                        $('#seeStatus').html('已关闭监视');
+                    }
+                });
+            }
+
+      
+        </script>
+
+    </div>
+
+</body>
+
+</html>
