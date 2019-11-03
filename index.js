@@ -57,8 +57,8 @@ var mailTransport = nodemailer.createTransport({
     host: 'smtp.qq.com',
     port: 465, // 腾讯端口
     auth: {
-        user: '1565221029@qq.com',
-        pass: 'xdfzhjmggeqcfjae'
+        user: 'xxxx@qq.com',  // 开启腾讯smpt协议后会得到密码
+        pass: 'xxxx'
     },
 });
 
